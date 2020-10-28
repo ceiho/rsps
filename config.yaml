@@ -1,0 +1,63 @@
+# Parameter for the study of the research software publication and sustainability
+
+# set your authentication token if exists and is required
+authentication:
+ # github: 
+ 
+database:
+ data_url:
+ name: research_software
+ collections:
+  repositories: repositories
+  publications: publications
+  rs_repositories: rs_repositories
+  rs_publications: rs_publications
+  publication_subjects: publication_subjects
+  arxiv_subjects: arxiv_subjects
+
+# set the name of the repository hosting service
+# supported services: github
+repo_sources:
+ - github
+
+# set the name of the digital library
+# supported digital libraries: arxiv
+pub_sources:
+ - arxiv
+
+# set the keyword(s)
+# special characters that wil be ignored in the search string: 
+# . , : ; / \ ` ' " = * ! ? # $ & + ^ | ~ < > ( ) { } [ ]
+repo_keywords:
+ - doi+10
+ - doi+10+in:readme
+pub_keywords:
+ - github.com
+  
+# set the dates for the repository search period
+start_date: "2020-10-12"
+end_date: "2020-10-12"
+
+# set the repository search interval in the format years|months|days=int
+delta: days=7
+
+# specify the information to be collected by the repositoryHarvester
+repoHarvester:
+ - search_repos
+ - readme
+
+# specify the steps to be executed be the research software identifier
+rsidentifier:
+ # - new_publications
+ # - new_repositories
+ - dois 
+ - repo_name 
+ - user_name
+ - metadata
+ - content
+ - cleansing
+ - commits
+ - crossref
+ - subject
+ - subject_arxiv
+ 
