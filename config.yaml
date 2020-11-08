@@ -2,18 +2,26 @@
 
 # set your authentication token if exists and is required
 authentication:
- # github: 
+  #github: 
  
 database:
- data_url:
- name: research_software
- collections:
-  repositories: repositories
-  publications: publications
-  rs_repositories: rs_repositories
-  rs_publications: rs_publications
-  publication_subjects: publication_subjects
-  arxiv_subjects: arxiv_subjects
+  data_url:
+  name: research_software
+  collections:
+    repositories: repositories
+    publications: publications
+    rs_repositories: rs_repositories
+    rs_publications: rs_artifacts
+    publication_subjects: publication_subjects
+    arxiv_subjects: arxiv_subjects
+
+supported_sources:
+  arxiv:
+    token_required: False
+    class: ArXivHarvester
+  github:
+    token_required: False
+    class: GitHubHarvester
 
 # set the name of the repository hosting service
 # supported services: github
@@ -35,8 +43,8 @@ pub_keywords:
  - github.com
   
 # set the dates for the repository search period
-start_date: "2020-10-12"
-end_date: "2020-10-12"
+start_date: "2020-10-01"
+end_date: "2020-10-01"
 
 # set the repository search interval in the format years|months|days=int
 delta: days=7
@@ -48,14 +56,13 @@ repoHarvester:
 
 # specify the steps to be executed be the research software identifier
 rsidentifier:
- # - new_publications
- # - new_repositories
+ - new_publications
+ - new_repositories
  - dois 
  - repo_name 
  - user_name
  - metadata
  - content
- - cleansing
  - commits
  - crossref
  - subject
