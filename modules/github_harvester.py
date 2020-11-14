@@ -89,8 +89,8 @@ class GitHubHarvester(RepositoryHarvester, RepositoryComplementer):
             # Seconds to sleep after a core API call, including requests for
             # commits, content, and Readme files
             self.sleep_core = 60
-            print('No auth token defined, search requests are limited to 10',
-                  'per minute, other requests are limited to 60 per hour.')
+            #print('No auth token defined, search requests are limited to 10',
+            #      'per minute, other requests are limited to 60 per hour.')
 
 
     def get_search_sleep_time(self):
@@ -402,6 +402,8 @@ class GitHubHarvester(RepositoryHarvester, RepositoryComplementer):
         response, limit = self.get_api_response('commit', name, num_requests)
         valid_json_list = True
         retries = 0
+        first_commit_date = None
+        last_commit_date = None
 
         if not response:
             return True, None, None, limit
@@ -441,7 +443,7 @@ class GitHubHarvester(RepositoryHarvester, RepositoryComplementer):
     @staticmethod
     def keys_exists(element, *keys):
         '''
-        Check if *keys (nested) exists in `element` (dict).
+        Check if \*keys (nested) exists in `element` (dict).
         '''
         if not isinstance(element, dict):
             raise AttributeError(
