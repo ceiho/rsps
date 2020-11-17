@@ -638,7 +638,7 @@ class RsRepoCollection(Collection):
                             "v": "$count" }}}}])
 
 
-class RsArtifactCollection(Collection):
+class RsPublicationCollection(Collection):
     '''
 
     .. class RsPublicationCollection
@@ -693,8 +693,7 @@ class RsArtifactCollection(Collection):
 
         return _Database.aggregate(
             self.collection_name,
-            [{'$match': {'identifier.mode':'doi'}},
-             {"$group": {
+            [{"$group": {
                 "_id": "$type",
                 "count": { "$sum": 1 } } },
              {"$sort": { "_id": 1 } },
