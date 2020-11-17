@@ -31,7 +31,7 @@ class ArXivHarvester(PublicationHarvester):
     # base arXiv API url
     BASE_URL = 'http://export.arxiv.org/api/query?search_query=all:'
 
-    def __init__(self, start=0, results_per_iteration=1000, wait_time=5):
+    def __init__(self, start=0, results_per_iteration=500, wait_time=5):
         '''
         Constructor method
         '''
