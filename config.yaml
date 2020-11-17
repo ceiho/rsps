@@ -50,7 +50,7 @@ end_date: "2020-10-01"
 delta: days=7
 
 # specify the information to be collected by the repositoryHarvester
-repoHarvester:
+repo_harvester:
  - search_repos
  - readme
 

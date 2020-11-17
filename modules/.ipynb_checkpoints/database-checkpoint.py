@@ -32,7 +32,7 @@ class _Database():
         checks whether the specified database tables exist.
         '''
         _Database.DATABASE_NAME = name
-        _Database.DATABASE = getattr(MongoClient('localhost', 27017), name)
+        _Database.DATABASE = getattr(MongoClient(), name)
 
 
     @staticmethod
@@ -107,8 +107,8 @@ class _Database():
 
         :param collection: Database collection.
         :type collection: pymongo.collection.Collection
-        :param features: Characteristics to be met by the documents.
-        :type features: [dict]
+        :param queries: Characteristics to be met by the documents.
+        :type queries: [dict]
         :returns: Sorted documents matching the characteristics.
         :rtype: pymongo.cursor.Cursor
         '''
@@ -224,22 +224,9 @@ class Collection():
 
         if (_Database.DATABASE.list_collection_names()
             and not name in _Database.DATABASE.list_collection_names()):
-            if data_url and not path.exists('data/' + name + '.bson'):
-                try:
-                    with urlopen(data_url) as zipresp:
-                        with ZipFile(BytesIO(zipresp.read())) as zfile:
-                            print('Extracting zip file ...')
-                            zfile.extractall('data')
-                except:
-                    print('Something went wrong. Database files are not loaded.')
-            if path.exists('data/' + name + '.bson'):
-                cmd = ('mongorestore -d ' + _Database.DATABASE_NAME
-                       + ' -c ' + name + ' data/' + name + '.bson')
-                print('Restoring database table ' + name + ' ...')
-            else:
-                print('Database table', name,
-                      'is not available. Confirm or specify another database table name:')
-                name = input()
+            print('Database table', name,
+                  'is not available. Confirm or specify another database table name:')
+            name = input()
         if mode in ['arxiv_subjects', 'publication_subjects']:
             while not name in _Database.DATABASE.list_collection_names():
                 print('The database table is required to determine the repository subject,',
@@ -443,34 +430,6 @@ class RsRepoCollection(Collection):
                  'references': ids})
 
 
-    def merge_duplicates(self, meta_repo, repo):
-        '''
-        Checks if a repository has a duplicate entry.
-
-        :param meta_repo: Repository metadata.
-        :type meta_repo: dict
-        :param repo: Current repository to be checked.
-        :type repo: dict
-        :returns: 0 for no existing duplicates, 1 if exists.
-        :rtype: int
-        '''
-
-        duplicate_repo = self.get_entry(
-            {'$and':[{'_id':{'$ne':repo['_id']}},{'id': meta_repo['id']}]})
-        if duplicate_repo:
-            for group in repo['group']:
-                self.mod_entry({'_id':duplicate_repo['_id']}, {'$addToSet':{'group':group}})
-            for ref in repo['references']:
-                self.mod_entry({'_id':duplicate_repo['_id']}, {'$addToSet':{'references':ref}})
-            self.mod_entry(
-                {'_id':duplicate_repo['_id']},
-                {'$set':{'full_name':meta_repo['full_name'], 'language': meta_repo['language']}})
-            self.remove_entry({'_id':repo['_id']})
-            return 1
-        return 0
-
-
-
     def save_subject(self, name, subject):
         '''
         The function updates a repository entry with the disciplines,
@@ -479,7 +438,7 @@ class RsRepoCollection(Collection):
         :param name: Repository to be updated.
         :type name: str
         :param subject: Main disciplineSubject information.
-        :type main: dict
+        :type main: str
         :return: None.
         :rtype: None
         '''
@@ -538,107 +497,8 @@ class RsRepoCollection(Collection):
                  {'references': ident}})
 
 
-    def compose_subjects(self, mode, group=None):
-        '''
-        The function aggregates the different values of the main subject.
-        If requested with the group paramter, th aggregation is build for
-        one analysis group, namely github, acm, and arxiv
 
-        :param group: Analysis group.
-        :type group: str
-        :returns: Entries meeting the characteristics.
-        :rtype: pymongo.cursor.Cursor
-        '''
-
-        if group:
-            cursor = _Database.aggregate(
-                self.collection_name,
-                [{'$match': { "group": { '$in': [group] } }},
-                 {"$group": {
-                     "_id": "$"+mode,
-                     "count": { "$sum": 1 } } },
-                 { "$sort": { "_id": 1 } },
-                 {  "$group": {
-                     "_id": mode,
-                     "counts": {
-                         "$push": {
-                             "k": "$_id",
-                             "v": "$count" } } } } ])
-        else:
-            cursor = _Database.aggregate(
-                self.collection_name,
-                [{"$group": {
-                     "_id": "$"+mode,
-                     "count": { "$sum": 1 } } },
-                 { "$sort": { "_id": 1 } },
-                 {  "$group": {
-                     "_id": mode,
-                     "counts": {
-                         "$push": {
-                             "k": "$_id",
-                             "v": "$count" } } } } ])
-        return cursor
-
-
-    def compose_group(self, subject):
-        '''
-        The function analyzes the number of analysis groups the
-        repository is part of
-
-        :returns: Entries meeting the characteristics.
-        :rtype: pymongo.cursor.Cursor
-        '''
-
-        if subject:
-            cursor = _Database.aggregate(
-                self.collection_name,
-                [{'$match': { "main_subject": { '$exists': True } }},
-                 {'$project': {
-                    'identifier': 'group',
-                    'containedIn': { '$cond':
-                                    {'if': { '$isArray': "$group" },
-                                     'then': { '$size': "$group" },
-                                     'else': "NA"} }}}])
-        else:
-            cursor =  _Database.aggregate(
-                self.collection_name,
-                [{'$project': {
-                    'identifier': 'group',
-                    'containedIn': { '$cond':
-                                    {'if': { '$isArray': "$group" },
-                                     'then': { '$size': "$group" },
-                                     'else': "NA"} }}}])
-        return cursor
-
-
-    def compose_arxiv_cs(self):
-        '''
-        The method aggregates all sub categories of the arxiv
-        computer science category
-
-        :returns: Entries meeting the characteristics.
-        :rtype: pymongo.cursor.Cursor
-        '''
-
-        return _Database.aggregate(
-            self.collection_name,
-            [
-                {'$match': {'$and': [{ "group": { '$in': ['arxiv'] } },
-                                     { 'subject': { '$in': ['Computer Science'] }},
-                                     {'sub_subject': {'$size': 1}}]}},
-                {  "$group":
-                 {"_id": "$sub_subject",
-                  "count": { "$sum": 1 }} },
-                { "$sort": { "_id": 1 } },
-                {  "$group": {
-                    "_id": 'subject',
-                    "counts": {
-                        "$push": {
-                            "k": "$_id",
-                            "v": "$count" }}}}])
-
-
-class RsArtifactCollection(Collection):
+class RsPublicationCollection(Collection):
     '''
 
     .. class RsPublicationCollection
@@ -667,8 +527,6 @@ class RsArtifactCollection(Collection):
         :type ids: [dict]
         :param repo: Repository name.
         :type repo: str
-        :returns: None
-        :rtype: None
         '''
 
         for ident in ids:
@@ -680,27 +538,3 @@ class RsArtifactCollection(Collection):
                 self.save(
                     {'identifier': ident,
                      'repos': [repo]})
-
-
-    def compose_type(self):
-        '''
-        The function aggregates the different types of the artifacts in the DOI
-        metadata.
-
-        :returns: Entries meeting the characteristics.
-        :rtype: pymongo.cursor.Cursor
-        '''
-
-        return _Database.aggregate(
-            self.collection_name,
-            [{'$match': {'identifier.mode':'doi'}},
-             {"$group": {
-                "_id": "$type",
-                "count": { "$sum": 1 } } },
-             {"$sort": { "_id": 1 } },
-             {"$group": {
-                 "_id": "type",
-                 "counts": {
-                     "$push": {
-                         "k": "$_id",
-                         "v": "$count" } } } } ])
