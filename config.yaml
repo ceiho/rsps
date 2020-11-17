@@ -2,7 +2,7 @@
 
 # set your authentication token if exists and is required
 authentication:
-  #github: 
+  github: '' 
  
 database:
   data_url:
