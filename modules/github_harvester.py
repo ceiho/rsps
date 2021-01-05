@@ -176,6 +176,17 @@ class GitHubHarvester(RepositoryHarvester, RepositoryComplementer):
         start_date = datetime.strptime(start, '%Y-%m-%d')
         fstr = 'relativedelta('+delta+')'
         now = datetime.now()
+        if datetime.strptime(end, '%Y-%m-%d') < now:
+            end_of_period = datetime.strptime(end, '%Y-%m-%d')
+        else:
+            end_of_period = now
+        # if the period ends before it starts, break
+        if start_date > end_of_period:
+            print('The search period ends before it starts.')
+            return
+        if '=0' in delta:
+            print('The time delta has to be a positive integer greater 0')
+            return
 
         # begin search intervals of one day with the start date
         if delta == 'days=1':
@@ -185,19 +196,19 @@ class GitHubHarvester(RepositoryHarvester, RepositoryComplementer):
             interval_end = start_date + eval(fstr)
             if delta == 'days=1':
                 if (interval_end.date() == now.date()
-                    or interval_end.date() == datetime.strptime(end, '%Y-%m-%d')):
+                    or interval_end.date() == end_of_period):
                     yield datetime.strftime(interval_end, '%Y-%m-%d')
                     return
                 yield datetime.strftime(interval_end, '%Y-%m-%d')
             else:
                 end_date = interval_end+relativedelta(days=-1)
-                if end_date >= now:
-                    end_date = now
+                if end_date >= end_of_period:
+                    end_date = end_of_period
                     yield (datetime.strftime(start_date, '%Y-%m-%d')+'..' +
                            datetime.strftime(end_date, '%Y-%m-%d'))
                     return
-                if end_date >= datetime.strptime(end, '%Y-%m-%d'):
-                    end_date = datetime.strptime(end, '%Y-%m-%d')
+                if end_date >= now:
+                    end_date = now
                     yield (datetime.strftime(start_date, '%Y-%m-%d')+'..' +
                            datetime.strftime(end_date, '%Y-%m-%d'))
                     return
