@@ -165,6 +165,22 @@ class _Database():
         _Database.DATABASE[collection].delete_one(query)
 
 
+    @staticmethod
+    def delete_many(collection, query):
+        '''
+        Deletes many documents from the database table
+        corresponding to the specified characteristics.
+
+        :param collection: Database collection.
+        :type collection: pymongo.collection.Collection
+        :param query: Characteristics to be met by the document.
+        :type query: dict
+        :returns: Result message.
+        :rtype: pymongo.results.DeleteResult
+        '''
+        _Database.DATABASE[collection].delete_many(query)
+
+
 
 class Collection():
     '''
@@ -344,6 +360,19 @@ class Collection():
         :rtype: None
         '''
         _Database.delete_one(self.collection_name, query)
+
+
+    def remove_entries(self, query):
+        '''
+        Removes entries according to the specified query
+        from the database table.
+
+        :param query: Entries to be deleted.
+        :type query: dict
+        :returns: None.
+        :rtype: None
+        '''
+        _Database.delete_many(self.collection_name, query)
 
 
 
