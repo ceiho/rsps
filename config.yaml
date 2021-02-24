@@ -5,7 +5,7 @@ authentication:
   github: '' 
  
 database:
-  data_url:
+  data_url: https://zenodo.org/record/4559603/files/research_software.zip?download=1 
   name: research_software
   collections:
     repositories: repositories
