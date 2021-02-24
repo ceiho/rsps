@@ -225,10 +225,10 @@ class Collection():
 
         if ((not _Database.DATABASE.list_collection_names()
              or not name in _Database.DATABASE.list_collection_names())
-            and path.exists('data/' + name + '.bson')):
-            cmd = ('mongorestore -d ' + _Database.DATABASE_NAME
-                   + ' -c ' + name + ' data/' + name + '.bson')
+            and path.exists('data/research_software/' + name + '.bson')):
             print('Restoring database table ' + name + ' ...')
+            cmd = ('mongorestore -d ' + _Database.DATABASE_NAME
+                   + ' -c ' + name + ' data/research_software/' + name + '.bson')
             try:
                 subprocess.check_output(cmd,stderr=subprocess.STDOUT,shell=True)
             except subprocess.CalledProcessError as error_message:
@@ -240,7 +240,7 @@ class Collection():
 
         if (_Database.DATABASE.list_collection_names()
             and not name in _Database.DATABASE.list_collection_names()):
-            if data_url and not path.exists('data/' + name + '.bson'):
+            if data_url and not path.exists('data/research_software/' + name + '.bson'):
                 try:
                     with urlopen(data_url) as zipresp:
                         with ZipFile(BytesIO(zipresp.read())) as zfile:
@@ -248,10 +248,11 @@ class Collection():
                             zfile.extractall('data')
                 except:
                     print('Something went wrong. Database files are not loaded.')
-            if path.exists('data/' + name + '.bson'):
-                cmd = ('mongorestore -d ' + _Database.DATABASE_NAME
-                       + ' -c ' + name + ' data/' + name + '.bson')
+            print(path.exists('data/research_software/' + name + '.bson'))
+            if path.exists('data/research_software/' + name + '.bson'):
                 print('Restoring database table ' + name + ' ...')
+                cmd = ('mongorestore -d ' + _Database.DATABASE_NAME
+                       + ' -c ' + name + ' data/research_software' + name + '.bson')
             else:
                 print('Database table', name,
                       'is not available. Confirm or specify another database table name:')
