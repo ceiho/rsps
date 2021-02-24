@@ -6,8 +6,10 @@ To gain a basic understanding about the publishing behaviour and the sustainabil
 
 The related data are archived on Zenodo, https://doi.org/10.5281/zenodo.4559603.
 
-The Binder repository (https://mybinder.org/v2/gh/ceiho/rsps/main) can be used to reproduce the results with the provided dataset of the following paper:
-Claudia Eitzen and Wilhelm Hasselbring. 2021. Reproducible Sustainability Analysis of Open Research Software Repositories. In WebSci ’21: 13th ACM Conference on Web Science, June 21–25, 2021, Southampton, UK. ACM, New York, NY, USA, 10 pages. https: //doi.org/10.1145/XXXXXXX.XXXXXXX
+The Binder repository (https://mybinder.org/v2/gh/ceiho/rsps/main) can be used to reproduce the results with the provided dataset of the following paper:   
+
+Claudia Eitzen and Wilhelm Hasselbring. 2021. Reproducible Sustainability Analysis of Open Research Software Repositories. In WebSci ’21: 13th ACM Conference on Web Science, June 21–25, 2021, Southampton, UK. ACM, New York, NY, USA, 10 pages. https: //doi.org/10.1145/XXXXXXX.XXXXXXX    
+
 The three analysis notebooks (data_description, classification, and sustainability_analysis) also provide additional analyses. Due to the long runtimes and resource-intensive computations, a more appropriate environment than the Binder repository should be chosen to reproduce the data acquisition, filtering, and classification (acmCrawler, publication_harvester, repository_harvester, and rs_identifier notebooks).
 
 
